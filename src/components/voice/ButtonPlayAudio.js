@@ -16,6 +16,7 @@ export default function ButtonPlayAudio({ audioBlob }) {
         }
 
         audio.current.play();
+        
     }
 
     useEffect(() => {
