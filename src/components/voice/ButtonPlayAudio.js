@@ -5,7 +5,6 @@ import { useEffect, useRef, useState } from "react";
 
 export default function ButtonPlayAudio({ audioBlob }) {
     const audio = useRef(null);
-    const [isAudioPlaying, setIsAudioPlaying] = useState(false);
 
     const handleClick = () => {
         if (!audioBlob) {
@@ -17,27 +16,35 @@ export default function ButtonPlayAudio({ audioBlob }) {
         }
 
         audio.current.play();
-        setTimeout(() => {
-            audio.current.play();
-        }, 0)
     }
 
     useEffect(() => {
         if (audio.current) {
             const handleAudioStateChange = () => {
                 try {
-                    setIsAudioPlaying(!audio?.current?.paused);
+                    const isAudioPlaying = !audio.current.paused;
+                    const playIcon = document.getElementById("play-icon");
+                    const pauseIcon = document.getElementById("pause-icon");
 
-                    !audio.current.paused && audio.current.play()
+                    if (playIcon && pauseIcon) {
+                        playIcon.style.display = isAudioPlaying ? "none" : "inline-block";
+                        pauseIcon.style.display = isAudioPlaying ? "inline-block" : "none";
+                    }
                 } catch (err) { }
+            };
+
+            const handleAudioCanPlayThrough = () => {
+                audio.current.removeEventListener("canplaythrough", handleAudioCanPlayThrough);
             };
 
             audio.current?.addEventListener('pause', handleAudioStateChange);
             audio.current?.addEventListener('play', handleAudioStateChange);
+            audio.current.addEventListener("canplaythrough", handleAudioCanPlayThrough);
 
             return () => {
                 audio.current?.removeEventListener('pause', handleAudioStateChange);
                 audio.current?.removeEventListener('play', handleAudioStateChange);
+                audio.current?.removeEventListener("canplaythrough", handleAudioCanPlayThrough);
             };
         }
     }, []);
@@ -45,7 +52,8 @@ export default function ButtonPlayAudio({ audioBlob }) {
     return (
         <>
             <IconButton size="large" onClick={handleClick} style={{ backgroundColor: '#cccc' }} >
-                {isAudioPlaying ? <PauseIcon /> : <PlayArrowIcon />}
+                <PlayArrowIcon id="play-icon" />
+                <PauseIcon id="pause-icon" style={{ display: "none" }} />
             </IconButton>
             {audioBlob ? <audio controls src={URL.createObjectURL(audioBlob)} ref={audio} style={{ display: 'none' }} /> : <></>}
         </>
