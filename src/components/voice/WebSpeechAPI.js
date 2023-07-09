@@ -78,6 +78,7 @@ const SpeechRecognitionComponent = ({ langCode = LanguageCodeEnum.ENGLISH }) => 
       stopRecording();
     };
 
+    
     return () => {
       if (recognition.current) {
         recognition.current.stop();
